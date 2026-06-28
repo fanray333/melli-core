@@ -1,16 +1,22 @@
 # MELLI Core
 
-Public-safe core building blocks for MELLI AI.
+Public-safe core for MELLI AI.
 
-This repository intentionally contains only reusable core logic:
+MELLI Core gives you a small provider router for customer-specific AI apps. It supports:
 
-- Provider routing
-- Local Ollama support
-- OpenAI-compatible provider support, including Agnes-style APIs
-- Basic tool contracts
-- NFC/QR tag context helpers
+- Ollama local models
+- OpenAI-compatible APIs, including Agnes-style providers
+- Provider fallback
+- Tool contracts
 
-It does not contain customer data, production routes, billing code, private prompts, API keys, or deployment configuration.
+This repo does not include private MELLI SaaS code, customer data, billing, production routes, API keys, deployment config, or private prompts.
+
+## Install
+
+```bash
+npm install
+npm test
+```
 
 ## Quick Start
 
@@ -41,54 +47,83 @@ const core = createMelliCore({
 const result = await core.chat({
   messages: [
     { role: 'system', content: 'You are MELLI, a customer-specific AI front desk.' },
-    { role: 'user', content: 'Do you take reservations tonight?' },
+    { role: 'user', content: 'Can I book a table for tonight?' },
   ],
 });
 
+console.log(result.provider);
 console.log(result.content);
 ```
 
 ## Ollama
 
-Ollama is treated as a local provider. By default, the adapter only allows local or private network URLs:
-
-- `localhost`
-- `127.0.0.1`
-- `.local`
-- RFC1918 private IPv4 ranges
-
-Remote public URLs are blocked unless `allowRemote: true` is explicitly passed. This avoids turning customer-controlled provider configuration into an SSRF path.
+```bash
+ollama serve
+ollama pull llama3.1
+```
 
 ```js
-createOllamaProvider({
+const ollama = createOllamaProvider({
   model: 'llama3.1',
   baseUrl: 'http://localhost:11434',
 });
 ```
 
-## NFC / QR Tags
+By default, remote public Ollama URLs are blocked. Allowed by default:
 
-MELLI physical tags should store short URLs such as `/t/{tagId}`. The application resolves that tag into customer-specific context:
+- `localhost`
+- `127.0.0.1`
+- `.local`
+- private IPv4 ranges
+
+Use `allowRemote: true` only for deployments you control.
+
+## OpenAI-Compatible Providers
 
 ```js
-{
-  customerId: 'richmond-sushi',
-  location: 'front_counter',
-  action: 'ask_ai',
-  source: 'nfc'
-}
+const agnes = createOpenAICompatibleProvider({
+  name: 'agnes',
+  model: 'agnes-2.0-flash',
+  baseUrl: 'https://apihub.agnes-ai.com/v1',
+  apiKey: process.env.AGNES_API_KEY,
+});
 ```
 
-The tag itself should not store private customer payloads.
+## Tools
+
+```js
+import { createTool } from '@melliai/core';
+
+const checkHours = createTool({
+  name: 'check_hours',
+  description: 'Check business hours.',
+  schema: {
+    type: 'object',
+    properties: {
+      date: { type: 'string' },
+    },
+    required: ['date'],
+  },
+  async execute(input, context) {
+    return context.business.hours[input.date] || 'closed';
+  },
+});
+```
+
+Production apps should enforce permissions, validation, audit logs, and customer ownership before executing tools.
 
 ## Public Boundary
 
-Keep private code out of this package:
+Do not put these in this repo:
 
-- No API keys or environment files
-- No raw customer data
-- No production database access
-- No private business routes
-- No provider-specific secrets
+- API keys
+- `.env` files
+- customer records
+- private prompts
+- production database access
+- billing code
+- private webhook routes
 
+## License
 
+MIT. See `LICENSE`.
