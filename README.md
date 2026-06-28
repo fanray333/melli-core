@@ -1,8 +1,10 @@
-# MELLI Core
+# MELLI Core Public Starter
 
-Public-safe core for MELLI AI.
+Public integration starter for MELLI AI.
 
-MELLI Core gives you a small provider router for customer-specific AI apps. It supports:
+This is not the full production MELLI core. It is a public-safe starter kit that shows the shape of MELLI integrations without exposing private SaaS code, customer logic, prompts, infrastructure, or production orchestration.
+
+It includes a small provider router and reusable adapter examples for customer-specific AI apps:
 
 - Ollama local models
 - OpenAI-compatible APIs, including Agnes-style providers
@@ -11,7 +13,7 @@ MELLI Core gives you a small provider router for customer-specific AI apps. It s
 - Provider fallback
 - Tool contracts
 
-This repo does not include private MELLI SaaS code, customer data, billing, production routes, API keys, deployment config, or private prompts.
+Use this repo to understand integration patterns. Keep production logic in your private MELLI app.
 
 ## Install
 
@@ -29,7 +31,7 @@ import {
   createMelliCore,
   createOllamaProvider,
   createOpenAICompatibleProvider,
-} from '@melliai/core';
+} from '@melliai/core-starter';
 
 const core = createMelliCore({
   defaultProvider: 'ollama',
@@ -84,7 +86,7 @@ import {
   createOllamaProvider,
   createTelegramAdapter,
   sendTelegramMessage,
-} from '@melliai/core';
+} from '@melliai/core-starter';
 
 const core = createMelliCore({
   defaultProvider: 'ollama',
@@ -123,7 +125,7 @@ This repo includes the reusable adapter only. Production apps should still verif
 ## Basic Front Desk Tools
 
 ```js
-import { createCheckHoursTool, createHandoffTool } from '@melliai/core';
+import { createCheckHoursTool, createHandoffTool } from '@melliai/core-starter';
 
 const tools = [
   createCheckHoursTool({
@@ -197,7 +199,7 @@ const agnes = createOpenAICompatibleProvider({
 ## Tools
 
 ```js
-import { createTool } from '@melliai/core';
+import { createTool } from '@melliai/core-starter';
 
 const checkHours = createTool({
   name: 'check_hours',
@@ -219,14 +221,16 @@ Production apps should enforce permissions, validation, audit logs, and customer
 
 ## Public Boundary
 
-Do not put these in this repo:
+This repo is intentionally not the commercial MELLI brain. Do not put these in this repo:
 
 - API keys
 - `.env` files
 - customer records
+- customer-specific routing logic
 - private prompts
+- production agent orchestration
 - production database access
-- billing code
+- auth, billing, or dashboard code
 - private webhook routes
 
 ## License
