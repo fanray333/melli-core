@@ -6,6 +6,8 @@ MELLI Core gives you a small provider router for customer-specific AI apps. It s
 
 - Ollama local models
 - OpenAI-compatible APIs, including Agnes-style providers
+- Telegram customer entrypoints
+- Basic front desk prompts and tools
 - Provider fallback
 - Tool contracts
 
@@ -22,6 +24,8 @@ npm test
 
 ```js
 import {
+  createBusinessContext,
+  createFrontDeskSystemPrompt,
   createMelliCore,
   createOllamaProvider,
   createOpenAICompatibleProvider,
@@ -44,6 +48,107 @@ const core = createMelliCore({
   },
 });
 
+const messages = [
+  {
+    role: 'system',
+    content: createFrontDeskSystemPrompt({
+      businessName: 'MELLI Cafe',
+    }),
+  },
+  {
+    role: 'system',
+    content: createBusinessContext({
+      businessName: 'MELLI Cafe',
+      hours: { monday: '9 AM - 5 PM' },
+      menuHighlights: ['coffee', 'matcha', 'lunch sets'],
+    }),
+  },
+  { role: 'user', content: 'Can I book a table for tonight?' },
+];
+
+const result = await core.chat({
+  messages,
+});
+
+console.log(result.provider);
+console.log(result.content);
+```
+
+## Telegram
+
+Use the Telegram adapter inside your own webhook route.
+
+```js
+import {
+  createMelliCore,
+  createOllamaProvider,
+  createTelegramAdapter,
+  sendTelegramMessage,
+} from '@melliai/core';
+
+const core = createMelliCore({
+  defaultProvider: 'ollama',
+  providers: {
+    ollama: createOllamaProvider({
+      model: process.env.OLLAMA_MODEL || 'llama3.1',
+      baseUrl: process.env.OLLAMA_BASE_URL || 'http://localhost:11434',
+    }),
+  },
+});
+
+const telegram = createTelegramAdapter({
+  core,
+  business: {
+    businessName: 'MELLI Cafe',
+    hours: { monday: '9 AM - 5 PM' },
+    menuHighlights: ['coffee', 'matcha', 'lunch sets'],
+  },
+});
+
+export async function handleTelegramWebhook(update) {
+  const result = await telegram.handleUpdate(update);
+  if (!result) return { ok: true };
+
+  await sendTelegramMessage({
+    botToken: process.env.TELEGRAM_BOT_TOKEN,
+    ...result.reply,
+  });
+
+  return { ok: true, provider: result.provider };
+}
+```
+
+This repo includes the reusable adapter only. Production apps should still verify webhook secrets, rate limit users, store audit logs, and keep bot tokens outside the repo.
+
+## Basic Front Desk Tools
+
+```js
+import { createCheckHoursTool, createHandoffTool } from '@melliai/core';
+
+const tools = [
+  createCheckHoursTool({
+    monday: '9 AM - 5 PM',
+    tuesday: '9 AM - 5 PM',
+    default: 'Please check with the team.',
+  }),
+  createHandoffTool(async (input, context) => {
+    await context.queue.create({
+      name: input.name,
+      contact: input.contact,
+      request: input.request,
+      urgency: input.urgency || 'normal',
+    });
+
+    return { status: 'queued' };
+  }),
+];
+```
+
+Tools are contracts. Your app decides when a model-requested tool call is trusted enough to execute.
+
+## Direct Chat
+
+```js
 const result = await core.chat({
   messages: [
     { role: 'system', content: 'You are MELLI, a customer-specific AI front desk.' },

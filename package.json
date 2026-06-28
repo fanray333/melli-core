@@ -1,7 +1,7 @@
 {
   "name": "@melliai/core",
   "version": "0.1.0",
-  "description": "Public-safe MELLI Core provider router and tool contracts.",
+  "description": "Public-safe MELLI Core provider router, Telegram adapter, and tool contracts.",
   "type": "module",
   "main": "./src/index.js",
   "exports": {
@@ -14,6 +14,8 @@
     "melli",
     "ai",
     "ollama",
+    "telegram",
+    "front-desk",
     "provider-router",
     "agents"
   ],
