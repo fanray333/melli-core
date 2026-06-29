@@ -221,7 +221,9 @@ Production apps should enforce permissions, validation, audit logs, and customer
 
 ## Public Boundary
 
-This repo is intentionally not the commercial MELLI brain. Do not put these in this repo:
+This repo is intentionally not the commercial MELLI brain. See `SECURITY.md` for the full security policy.
+
+Do not put these in this repo:
 
 - API keys
 - `.env` files
