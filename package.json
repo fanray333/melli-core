@@ -1,7 +1,7 @@
 {
-  "name": "@melliai/core-starter",
+  "name": "@melliai/integration-starter",
   "version": "0.1.0",
-  "description": "Public-safe MELLI Core integration starter with provider, Telegram, and tool examples.",
+  "description": "Public-safe MELLI integration starter with provider, Telegram, and tool examples.",
   "type": "module",
   "main": "./src/index.js",
   "exports": {

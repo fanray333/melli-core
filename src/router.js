@@ -2,13 +2,13 @@ function asArray(value) {
   return Array.isArray(value) ? value : [];
 }
 
-export function createMelliCore(config) {
+export function createMelliStarter(config) {
   const providers = config?.providers || {};
   const fallbackOrder = asArray(config?.fallbackOrder);
   const defaultProvider = config?.defaultProvider || fallbackOrder[0] || Object.keys(providers)[0];
 
   if (!defaultProvider || !providers[defaultProvider]) {
-    throw new Error('MELLI Core requires at least one configured provider');
+    throw new Error('MELLI starter requires at least one configured provider');
   }
 
   async function chat(request) {
@@ -35,7 +35,7 @@ export function createMelliCore(config) {
       }
     }
 
-    throw lastError || new Error('No MELLI Core provider could satisfy the request');
+    throw lastError || new Error('No MELLI starter provider could satisfy the request');
   }
 
   return {
@@ -43,4 +43,3 @@ export function createMelliCore(config) {
     providers: () => Object.keys(providers),
   };
 }
-

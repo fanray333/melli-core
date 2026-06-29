@@ -1,8 +1,8 @@
-# MELLI Core Public Starter
+# MELLI Public Integration Starter
 
 Public integration starter for MELLI AI.
 
-This is not the full production MELLI core. It is a public-safe starter kit that shows the shape of MELLI integrations without exposing private SaaS code, customer logic, prompts, infrastructure, or production orchestration.
+This is not the production MELLI system. It is a public-safe starter kit that shows the shape of MELLI integrations without exposing private SaaS code, customer logic, prompts, infrastructure, or production orchestration.
 
 It includes a small provider router and reusable adapter examples for customer-specific AI apps:
 
@@ -28,12 +28,12 @@ npm test
 import {
   createBusinessContext,
   createFrontDeskSystemPrompt,
-  createMelliCore,
+  createMelliStarter,
   createOllamaProvider,
   createOpenAICompatibleProvider,
-} from '@melliai/core-starter';
+} from '@melliai/integration-starter';
 
-const core = createMelliCore({
+const melli = createMelliStarter({
   defaultProvider: 'ollama',
   fallbackOrder: ['ollama', 'agnes'],
   providers: {
@@ -68,7 +68,7 @@ const messages = [
   { role: 'user', content: 'Can I book a table for tonight?' },
 ];
 
-const result = await core.chat({
+const result = await melli.chat({
   messages,
 });
 
@@ -82,13 +82,13 @@ Use the Telegram adapter inside your own webhook route.
 
 ```js
 import {
-  createMelliCore,
+  createMelliStarter,
   createOllamaProvider,
   createTelegramAdapter,
   sendTelegramMessage,
-} from '@melliai/core-starter';
+} from '@melliai/integration-starter';
 
-const core = createMelliCore({
+const melli = createMelliStarter({
   defaultProvider: 'ollama',
   providers: {
     ollama: createOllamaProvider({
@@ -99,7 +99,7 @@ const core = createMelliCore({
 });
 
 const telegram = createTelegramAdapter({
-  core,
+  melli,
   business: {
     businessName: 'MELLI Cafe',
     hours: { monday: '9 AM - 5 PM' },
@@ -125,7 +125,7 @@ This repo includes the reusable adapter only. Production apps should still verif
 ## Basic Front Desk Tools
 
 ```js
-import { createCheckHoursTool, createHandoffTool } from '@melliai/core-starter';
+import { createCheckHoursTool, createHandoffTool } from '@melliai/integration-starter';
 
 const tools = [
   createCheckHoursTool({
@@ -151,7 +151,7 @@ Tools are contracts. Your app decides when a model-requested tool call is truste
 ## Direct Chat
 
 ```js
-const result = await core.chat({
+const result = await melli.chat({
   messages: [
     { role: 'system', content: 'You are MELLI, a customer-specific AI front desk.' },
     { role: 'user', content: 'Can I book a table for tonight?' },
@@ -199,7 +199,7 @@ const agnes = createOpenAICompatibleProvider({
 ## Tools
 
 ```js
-import { createTool } from '@melliai/core-starter';
+import { createTool } from '@melliai/integration-starter';
 
 const checkHours = createTool({
   name: 'check_hours',

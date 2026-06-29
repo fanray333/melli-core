@@ -4,7 +4,7 @@ import {
   createBusinessContext,
   createCheckHoursTool,
   createFrontDeskSystemPrompt,
-  createMelliCore,
+  createMelliStarter,
   createOllamaProvider,
   createTelegramAdapter,
   createTelegramReply,
@@ -12,7 +12,7 @@ import {
 } from '../src/index.js';
 
 test('routes to configured provider', async () => {
-  const core = createMelliCore({
+  const melli = createMelliStarter({
     defaultProvider: 'fake',
     providers: {
       fake: {
@@ -23,13 +23,13 @@ test('routes to configured provider', async () => {
     },
   });
 
-  const result = await core.chat({ messages: [] });
+  const result = await melli.chat({ messages: [] });
   assert.equal(result.content, 'hello');
   assert.equal(result.provider, 'fake');
 });
 
 test('falls back to second provider', async () => {
-  const core = createMelliCore({
+  const melli = createMelliStarter({
     defaultProvider: 'first',
     fallbackOrder: ['first', 'second'],
     providers: {
@@ -46,7 +46,7 @@ test('falls back to second provider', async () => {
     },
   });
 
-  const result = await core.chat({ messages: [] });
+  const result = await melli.chat({ messages: [] });
   assert.equal(result.content, 'fallback');
   assert.equal(result.provider, 'second');
 });
@@ -101,8 +101,8 @@ test('creates Telegram reply payloads', () => {
   );
 });
 
-test('Telegram adapter routes message through MELLI Core', async () => {
-  const core = createMelliCore({
+test('Telegram adapter routes message through MELLI starter', async () => {
+  const melli = createMelliStarter({
     defaultProvider: 'fake',
     providers: {
       fake: {
@@ -115,7 +115,7 @@ test('Telegram adapter routes message through MELLI Core', async () => {
   });
 
   const telegram = createTelegramAdapter({
-    core,
+    melli,
     business: {
       businessName: 'MELLI Cafe',
       hours: { monday: '9 AM - 5 PM' },

@@ -34,8 +34,8 @@ export function createTelegramReply({ chatId, text, replyToMessageId, parseMode 
 }
 
 export function createTelegramAdapter(options = {}) {
-  const core = options.core;
-  if (!core?.chat) throw new Error('Telegram adapter requires core.chat');
+  const melli = options.melli;
+  if (!melli?.chat) throw new Error('Telegram adapter requires melli.chat');
 
   const systemPrompt = options.systemPrompt || createFrontDeskSystemPrompt(options.business || {});
   const businessContext = options.businessContext || createBusinessContext(options.business || {});
@@ -50,7 +50,7 @@ export function createTelegramAdapter(options = {}) {
       { role: 'user', content: input.text },
     ];
 
-    const result = await core.chat({
+    const result = await melli.chat({
       ...requestOptions,
       messages,
     });

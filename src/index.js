@@ -1,4 +1,4 @@
-export { createMelliCore } from './router.js';
+export { createMelliStarter } from './router.js';
 export { createOllamaProvider } from './providers/ollama.js';
 export { createOpenAICompatibleProvider } from './providers/openai-compatible.js';
 export {
